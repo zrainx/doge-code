@@ -1,133 +1,119 @@
+# Doge Code
 
-# Restored Claude Code Source
+> Claude Code 的一个 Fork。不是官方正史，而是平行世界番外篇；不是萌豚整活仓库，而是“认真修、顺手发癫一点点”的工程分支。
 
+[![Fork](https://img.shields.io/badge/Fork-Claude%20Code-f59e0b)](README.md)
+[![Status](https://img.shields.io/badge/status-restored%20%2B%20modded-10b981)](README.md)
+[![Runtime](https://img.shields.io/badge/runtime-Bun%20%2B%20Node-3b82f6)](README.md)
+[![Config](https://img.shields.io/badge/config-~%2F.doge-8b5cf6)](README.md)
+[![License](https://img.shields.io/badge/license-see%20upstream%20notice-lightgrey)](README.md)
+[![Issues](https://img.shields.io/badge/issues-welcome-ef4444)](README.md)
 
 ![Preview](preview.png)
 
+## 这是什么
 
-  This repository is a restored Claude Code source tree reconstructed primarily from source maps and missing-module backfilling.
+[`Doge Code`](README.md) 基于一份还原后的 [`Claude Code`](README.md) 源码树继续修改而来。
 
-  It is not the original upstream repository state. Some files were unrecoverable from source maps and have been replaced with compatibility shims or degraded implementations so the
-  project can install and run again.
+可以把它理解为：
 
-  ## Current status
+- 基底仍然是“通过 source map 逆向还原 + 缺失模块补齐”得到的可运行代码树
+- 但在此之上，加入了这个 Fork 自己的目标和行为调整
+- 目标不是“100% 忠于上游”，而是“让它更适合折腾、适合代理转接、适合自定义模型接入”
 
-  - The source tree is restorable and runnable in a local development workflow.
-  - `bun install` succeeds.
-  - `bun run version` succeeds.
-  - `bun run dev` now routes through the restored CLI bootstrap instead of the temporary `dev-entry` shim.
-  - `bun run dev --help` shows the full command tree from the restored CLI.
-  - A number of modules still contain restoration-time fallbacks, so behavior may differ from the original Claude Code implementation.
+如果用 ACG 比喻，大概属于：
 
-  ## Restored so far
+- 原作：[`Claude Code`](README.md)
+- 本作：[`Doge Code`](README.md)
+- 定位：不是官方 BD 修正集，而是高强度民间魔改但努力保持剧情逻辑自洽的外传 OVA
 
-  Recent restoration work has recovered several pieces beyond the initial source-map import:
+## 当前定位
 
-  - the default Bun scripts now start the real CLI bootstrap path
-  - bundled skill content for `claude-api` and `verify` has been rewritten from placeholder files into usable reference docs
-  - compatibility layers for Chrome MCP and Computer Use MCP now expose realistic tool catalogs and structured degraded-mode responses instead of empty stubs
-  - several explicit placeholder resources have been replaced with working fallback prompts for planning and permission-classifier flows
+这个仓库当前强调的是以下方向：
 
-  Remaining gaps are mostly private/native integrations where the original implementation was not recoverable from source maps, so those areas still rely on shims or reduced behavior.
+- 支持自定义 Anthropic 兼容接口地址
+- 支持自定义 API Key
+- 支持自定义模型与模型列表管理
+- 尽量把自定义接入数据收口到 [`~/.doge`](README.md) 路径体系
+- 在保留 CLI/TUI 主体结构的前提下，降低对官方登录流的绑定
 
-  ## Why this exists
+换句话说，它现在更像一个“可自托管 / 可代理 / 可转接”的 [`Claude Code`](README.md) 变体。
 
-  Source maps do not contain a full original repository:
+## 和原始还原仓库的关系
 
-  - type-only files are often missing
-  - build-time generated files may be absent
-  - private package wrappers and native bindings may not be recoverable
-  - dynamic imports and resource files are frequently incomplete
+这个仓库**不是**上游官方源码仓库，也**不是** pristine 状态的 Claude Code。
 
-  This repository fills those gaps enough to produce a usable, runnable restored workspace.
+它有两层历史：
 
-  ## Run
+1. 第一层：还原后的源码树
+2. 第二层：基于该源码树继续进行的 Fork 改造
 
-  Requirements:
+因此你会看到两类差异同时存在：
 
-  - Bun 1.3.5 or newer
-  - Node.js 24 or newer
+- 来自恢复过程的 shim、fallback、兼容层
+- 来自 Doge Code 的主动魔改
 
-  Install dependencies:
+这两类改动都是真实存在的，不建议把当前代码误判成“官方上游源码镜像”。
 
-  ```bash
-  bun install
-  ```
+## 当前状态
 
-  Run the restored CLI:
+- 该源码树已经可以在本地开发流程中恢复并运行
+- [`bun install`](README.md) 可用于安装依赖
+- [`bun run dev`](README.md) 可用于启动恢复后的 CLI/TUI
+- [`bun run version`](README.md) 可用于输出当前版本信息
+- 项目已被继续改造成 [`Doge Code`](README.md) 分支，部分行为和 UI 已不再与原始 Claude Code 一致
+- 部分区域仍保留恢复期 fallback，因此行为可能与上游实现不同
 
-  ```bash
-  bun run dev
-  ```
+## 为什么会有这个仓库
 
-  Print the restored version:
+因为 source map 并不能召唤完整原仓库，最多只能说“把灵魂碎片召回来一部分”。
 
-  ```bash
-  bun run version
-  ```
+常见缺口包括：
 
-  ## 中文说明
+- 类型专用文件缺失
+- 构建产物和中间文件缺失
+- 私有包包装层无法恢复
+- 原生绑定无法恢复
+- 动态导入资源不完整
 
-  # 还原后的 Claude Code 源码
+因此这个仓库的目标从一开始就不是考古式供奉，而是：
 
-  ![Preview](preview.png)
+- 先恢复到可运行
+- 再恢复到可维护
+- 最后在能跑的基础上，按需求继续 Fork
 
-  这个仓库是一个主要通过 source map 逆向还原、再补齐缺失模块后得到的 Claude Code 源码树。
+简而言之：
 
-  它并不是上游仓库的原始状态。部分文件无法仅凭 source map 恢复，因此目前仍包含兼容 shim 或降级实现，以便项目可以重新安装并运行。
+> 先让它活，再让它能打，再让它变成狗。
 
-  ### 当前状态
+## 运行方式
 
-  - 该源码树已经可以在本地开发流程中恢复并运行。
-  - `bun install` 可以成功执行。
-  - `bun run version` 可以成功执行。
-  - `bun run dev` 现在会通过还原后的真实 CLI bootstrap 启动，而不是临时的 `dev-entry`。
-  - `bun run dev --help` 可以显示还原后的完整命令树。
-  - 仍有部分模块保留恢复期 fallback，因此行为可能与原始 Claude Code 实现不同。
+环境要求：
 
-  ### 已恢复内容
+- Bun 1.3.5 或更高版本
+- Node.js 24 或更高版本
 
-  最近一轮恢复工作已经补回了最初 source-map 导入之外的几个关键部分：
+安装依赖：
 
-  - 默认 Bun 脚本现在会走真实的 CLI bootstrap 路径
-  - `claude-api` 和 `verify` 的 bundled skill 内容已经从占位文件恢复为可用参考文档
-  - Chrome MCP 和 Computer Use MCP 的兼容层现在会暴露更接近真实的工具目录，并返回结构化的降级响应，而不是空 stub
-  - 一些显式占位资源已经替换为可用的 planning 与 permission-classifier fallback prompt
+```bash
+bun install
+```
 
-  当前剩余缺口主要集中在私有或原生集成部分，这些实现无法仅凭 source map 完整恢复，因此这些区域仍依赖 shim 或降级行为。
+运行 [`Doge Code`](README.md) CLI：
 
-  ### 为什么会有这个仓库
+```bash
+bun run dev
+```
 
-  source map 本身并不能包含完整的原始仓库：
+输出版本号：
 
-  - 类型专用文件经常缺失
-  - 构建时生成的文件可能不存在
-  - 私有包包装层和原生绑定可能无法恢复
-  - 动态导入和资源文件经常不完整
+```bash
+bun run version
+```
 
-  这个仓库的目标是把这些缺口补到“可用、可运行”的程度，形成一个可继续修复的恢复工作区。
+## 说明与免责声明
 
-  ### 运行方式
-
-  环境要求：
-
-  - Bun 1.3.5 或更高版本
-  - Node.js 24 或更高版本
-
-  安装依赖：
-
-  ```bash
-  bun install
-  ```
-
-  运行恢复后的 CLI：
-
-  ```bash
-  bun run dev
-  ```
-
-  输出恢复后的版本号：
-
-  ```bash
-  bun run version
-  ```
+- 本仓库是 [`Claude Code`](README.md) 的 Fork：[`Doge Code`](README.md)
+- 它包含恢复期代码与后续 Fork 改动，不代表官方立场
+- 如果某些行为看起来“很像官方，但又不完全像”，那通常不是你看错了，而是这确实是恢复版 + 魔改版的叠加态
+- 如果某些文案偶尔带一点 ACG 味，那是彩蛋，不是类型系统坏掉了（至少不全是）
