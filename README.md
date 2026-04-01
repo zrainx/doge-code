@@ -2,6 +2,18 @@
 
 > Claude Code 的一个 Fork。不是官方正史，而是平行世界番外篇；不是萌豚整活仓库，而是“认真修、顺手发癫一点点”的工程分支。
 
+## Star History
+
+<a href="https://www.star-history.com/?repos=HELPMEEADICE%2Fdoge-code&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/image?repos=HELPMEEADICE/doge-code&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/image?repos=HELPMEEADICE/doge-code&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/image?repos=HELPMEEADICE/doge-code&type=date&legend=top-left" />
+ </picture>
+</a>
+
+</div>
+
 [![Fork](https://img.shields.io/badge/Fork-Claude%20Code-f59e0b)](README.md)
 [![Status](https://img.shields.io/badge/status-restored%20%2B%20modded-10b981)](README.md)
 [![Runtime](https://img.shields.io/badge/runtime-Bun%20%2B%20Node-3b82f6)](README.md)
@@ -32,12 +44,60 @@
 这个仓库当前强调的是以下方向：
 
 - 支持自定义 Anthropic 兼容接口地址
+- 正在加入 OpenAI Chat Completions ↔ Anthropic Messages 转接能力
 - 支持自定义 API Key
 - 支持自定义模型与模型列表管理
 - 尽量把自定义接入数据收口到 [`~/.doge`](README.md) 路径体系
 - 在保留 CLI/TUI 主体结构的前提下，降低对官方登录流的绑定
 
 换句话说，它现在更像一个“可自托管 / 可代理 / 可转接”的 [`Claude Code`](README.md) 变体。
+
+## 与原版 Claude Code 的数据隔离
+
+[`Doge Code`](README.md) 默认**不应**与原版 [`Claude Code`](README.md) 共用配置和缓存目录。
+
+当前 Fork 已明确把默认用户目录收口到：
+
+- 配置目录：[`~/.doge`](README.md)
+- 全局配置文件：[`~/.doge/.claude.json`](README.md)
+
+这样做的目的，是避免以下问题：
+
+- 原版 [`Claude Code`](README.md) 的登录态污染 [`Doge Code`](README.md)
+- 原版保存的 endpoint / token / model 配置影响 Doge 的代理转接逻辑
+- 两边共用 [`.claude.json`](README.md) 或 [`.claude/`](README.md) 导致奇怪的网络、认证、模型或 UI 异常
+
+如果用户以前装过原版 [`Claude Code`](README.md)，再运行 [`Doge Code`](README.md) 时出现“明明没这么配却读到了旧配置”的现象，通常就是历史数据混用导致的。
+
+建议：
+
+- 原版继续使用它自己的 [`.claude`](README.md) / [`.claude.json`](README.md)
+- [`Doge Code`](README.md) 使用 [`.doge`](README.md) 目录
+- 如需手动指定，也可以通过 [`CLAUDE_CONFIG_DIR`](README.md) 为 [`Doge Code`](README.md) 指向独立目录
+
+一句话总结：
+
+> 原版走原版的窝，狗子住狗子的窝，别把缓存、认证和配置炖成一锅。
+
+## OpenAI 兼容接口说明
+
+[`Doge Code`](README.md) 正在加入一个“中间转接层”模式，用来让内部仍按 Anthropic Messages 结构工作的主逻辑，转发到 OpenAI Chat Completions 接口。
+
+目标行为是：
+
+- 内部程序仍按 Anthropic Messages 模式组织请求
+- 当选择 OpenAI API 格式时，由中间层把 Messages 请求改写成 Chat Completions 请求
+- 远端返回 Chat Completions 流后，再由中间层回转成内部可消费的 Messages 风格流事件
+
+这意味着它不是简单改一个 Base URL，而是协议级别的输入输出流转接。
+
+当前状态：
+
+- API 格式选择界面与配置持久化已加入
+- OpenAI 兼容转接模块正在迭代中
+- 目前仍属于开发中功能，可能出现流式事件不完整、消息映射异常、部分工具调用兼容不足等情况
+
+如果你只是想稳定使用，建议优先走 Anthropic 兼容接口模式；如果你在测试 OpenAI 格式，请把它视为实验功能。
 
 ## 和原始还原仓库的关系
 
@@ -63,6 +123,7 @@
 - [`bun run version`](README.md) 可用于输出当前版本信息
 - 项目已被继续改造成 [`Doge Code`](README.md) 分支，部分行为和 UI 已不再与原始 Claude Code 一致
 - 部分区域仍保留恢复期 fallback，因此行为可能与上游实现不同
+- OpenAI API 格式转接功能仍在开发中，当前并非完全稳定
 
 ## 为什么会有这个仓库
 
