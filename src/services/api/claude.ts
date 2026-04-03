@@ -31,6 +31,11 @@ import {
   createOpenAICompatStream,
 } from './openaiCompat.js'
 import {
+  convertAnthropicRequestToOpenAIResponses,
+  createAnthropicStreamFromOpenAIResponses,
+  createOpenAIResponsesStream,
+} from './openaiResponsesCompat.js'
+import {
   getAttributionHeader,
   getCLISyspromptPrefix,
 } from '../../constants/system.js'
@@ -67,7 +72,7 @@ import {
   getMergedBetas,
   getModelBetas,
 } from '../../utils/betas.js'
-import { getOrCreateUserID } from '../../utils/config.js'
+import { getGlobalConfig, getOrCreateUserID } from '../../utils/config.js'
 import {
   CAPPED_DEFAULT_MAX_TOKENS,
   getModelMaxOutputTokens,
@@ -1811,8 +1816,50 @@ async function* queryModel(
         // BetaMessageStream calls partialParse() on every input_json_delta, which we don't need
         // since we handle tool input accumulation ourselves
         // biome-ignore lint/plugin: main conversation loop handles attribution separately
-        const compatProvider = readCustomApiStorage().provider ?? 'anthropic'
+        const customApiConfig = {
+          ...(getGlobalConfig().customApiEndpoint ?? {}),
+          ...readCustomApiStorage(),
+        }
+        const compatProvider = customApiConfig.provider ?? 'anthropic'
+        const openAICompatMode = customApiConfig.openaiCompatMode ?? 'chat_completions'
         if (compatProvider === 'openai') {
+          const compatConfig = {
+            apiKey: process.env.DOGE_API_KEY || '',
+            baseURL: process.env.ANTHROPIC_BASE_URL || '',
+            headers: clientRequestId
+              ? { [CLIENT_REQUEST_ID_HEADER]: clientRequestId }
+              : undefined,
+            fetch: globalThis.fetch,
+          }
+
+          if (openAICompatMode === 'responses') {
+            const responsesRequest = convertAnthropicRequestToOpenAIResponses({
+              model: params.model,
+              system: params.system,
+              messages: params.messages,
+              tools: params.tools,
+              tool_choice: params.tool_choice,
+              temperature: params.temperature,
+              max_tokens: params.max_tokens,
+              thinking: params.thinking,
+            })
+            if (!responsesRequest.input || responsesRequest.input.length === 0) {
+              throw new Error(
+                `[claude.ts] openai responses compat request has no input; source=${options.querySource} model=${params.model}`,
+              )
+            }
+            const reader = await createOpenAIResponsesStream(
+              compatConfig,
+              responsesRequest,
+              signal,
+            )
+            queryCheckpoint('query_response_headers_received')
+            return createAnthropicStreamFromOpenAIResponses({
+              reader,
+              model: params.model,
+            }) as unknown as Stream<BetaRawMessageStreamEvent>
+          }
+
           const openAIRequest = convertAnthropicRequestToOpenAI({
             model: params.model,
             system: params.system,
@@ -1829,14 +1876,7 @@ async function* queryModel(
             )
           }
           const reader = await createOpenAICompatStream(
-            {
-              apiKey: process.env.DOGE_API_KEY || '',
-              baseURL: process.env.ANTHROPIC_BASE_URL || '',
-              headers: clientRequestId
-                ? { [CLIENT_REQUEST_ID_HEADER]: clientRequestId }
-                : undefined,
-              fetch: globalThis.fetch,
-            },
+            compatConfig,
             openAIRequest,
             signal,
           )

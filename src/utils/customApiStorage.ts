@@ -1,7 +1,10 @@
 import { getSecureStorage } from './secureStorage/index.js'
 
+export type OpenAICompatMode = 'chat_completions' | 'responses'
+
 export type CustomApiStorageData = {
   provider?: 'anthropic' | 'openai'
+  openaiCompatMode?: OpenAICompatMode
   baseURL?: string
   apiKey?: string
   model?: string
@@ -19,11 +22,20 @@ export function readCustomApiStorage(): CustomApiStorageData {
   const raw = data[CUSTOM_API_STORAGE_KEY]
   if (!raw || typeof raw !== 'object') return {}
   const value = raw as Record<string, unknown>
+  const provider =
+    value.provider === 'openai' || value.provider === 'anthropic'
+      ? value.provider
+      : undefined
+  const openaiCompatMode =
+    value.openaiCompatMode === 'chat_completions' || value.openaiCompatMode === 'responses'
+      ? value.openaiCompatMode
+      : provider === 'openai'
+        ? 'chat_completions'
+        : undefined
+
   return {
-    provider:
-      value.provider === 'openai' || value.provider === 'anthropic'
-        ? value.provider
-        : undefined,
+    provider,
+    openaiCompatMode,
     baseURL: typeof value.baseURL === 'string' ? value.baseURL : undefined,
     apiKey: typeof value.apiKey === 'string' ? value.apiKey : undefined,
     model: typeof value.model === 'string' ? value.model : undefined,

@@ -183,6 +183,7 @@ export type OutputStyle = string
 export type GlobalConfig = {
   customApiEndpoint?: {
     provider?: 'anthropic' | 'openai'
+    openaiCompatMode?: 'chat_completions' | 'responses'
     baseURL?: string
     apiKey?: string
     model?: string
@@ -592,6 +593,8 @@ export type GlobalConfig = {
 function createDefaultGlobalConfig(): GlobalConfig {
   return {
     customApiEndpoint: {
+      provider: undefined,
+      openaiCompatMode: undefined,
       baseURL: undefined,
       apiKey: undefined,
       model: undefined,

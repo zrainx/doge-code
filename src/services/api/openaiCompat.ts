@@ -10,7 +10,7 @@ import type {
 
 type AnyBlock = Record<string, unknown>
 
-type OpenAICompatConfig = {
+export type OpenAICompatConfig = {
   apiKey: string
   baseURL: string
   headers?: Record<string, string>
@@ -80,11 +80,11 @@ type OpenAIStreamChunk = {
   }
 }
 
-function joinBaseUrl(baseURL: string, path: string): string {
+export function joinBaseUrl(baseURL: string, path: string): string {
   return `${baseURL.replace(/\/$/, '')}${path}`
 }
 
-function contentToText(content: BetaMessageParam['content']): string {
+export function contentToText(content: BetaMessageParam['content']): string {
   if (typeof content === 'string') return content
   return content
     .map(block => {
@@ -100,13 +100,13 @@ function contentToText(content: BetaMessageParam['content']): string {
     .join('\n')
 }
 
-function toBlocks(content: BetaMessageParam['content']): AnyBlock[] {
+export function toBlocks(content: BetaMessageParam['content']): AnyBlock[] {
   return Array.isArray(content)
     ? (content as unknown as AnyBlock[])
     : [{ type: 'text', text: content }]
 }
 
-function getToolDefinitions(tools?: BetaToolUnion[]): OpenAIChatRequest['tools'] {
+export function getToolDefinitions(tools?: BetaToolUnion[]): OpenAIChatRequest['tools'] {
   if (!tools || tools.length === 0) return undefined
   const mapped = tools.flatMap(tool => {
     const record = tool as unknown as Record<string, unknown>
@@ -264,14 +264,14 @@ export async function createOpenAICompatStream(
   return response.body.getReader()
 }
 
-function parseSSEChunk(buffer: string): { events: string[]; remainder: string } {
+export function parseSSEChunk(buffer: string): { events: string[]; remainder: string } {
   const normalized = buffer.replace(/\r\n/g, '\n')
   const parts = normalized.split('\n\n')
   const remainder = parts.pop() ?? ''
   return { events: parts, remainder }
 }
 
-function mapFinishReason(reason: string | null | undefined): BetaMessage['stop_reason'] {
+export function mapFinishReason(reason: string | null | undefined): BetaMessage['stop_reason'] {
   if (reason === 'tool_calls') return 'tool_use'
   if (reason === 'length') return 'max_tokens'
   return 'end_turn'
